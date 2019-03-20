@@ -8,7 +8,8 @@
 <body>
     <input type="text" id="searching" placeholder="search..." autofocus>
 
-    <div id="bookmarks">
+    <div id="bookmarksContainer">
+        <!-- template for bookmark cards. will be removed on startup -->
         <div class="bookmark-card" title="">
             <div class="bookmark-data">
                 <img class="bookmark-card-icon" src="">
@@ -16,13 +17,14 @@
             </div>
             <div class="bookmark-controls">EDIT</div>
         </div>
+        <!-- end of template -->
     </div>
 
     <div id="editformModal">
         <form id="editform" novalidate>
             <input type="hidden" id="editformId">
             <p id="editformDescription">&nbsp;</p>
-            <label for="editformUrl">Url [Required]</label>
+            <label for="editformUrl">Url <span class="editformRequired">[Required]</span></label>
             <input type="text" id="editformUrl" maxlength="500" required>
             <label for="editformTitle">Title</label>
             <input type="text" id="editformTitle" maxlength="100">

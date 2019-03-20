@@ -1,6 +1,6 @@
-import { getBookmarks, deleteBookmark, addBookmark, updateBookmark, registerBookmarksChangeListener, removeAllBookmarks, getSettings, setSettings } from './storage.js';
+import * as storage from './storage.js';
 
-const bookmarkContainer = document.getElementById('bookmarks');
+const bookmarkContainer = document.getElementById('bookmarksContainer');
 const editformModal = document.getElementById('editformModal');
 const editform = document.getElementById('editform');
 const editformDescription = document.getElementById('editformDescription');
@@ -43,26 +43,26 @@ document.getElementById('searching').addEventListener('keydown', (event) => {
     </div>
 */
 
-function buildBookmarkHTML(value) {
+function buildBookmarkHTML(bookmark) {
     let card = cardTemplate.cloneNode(true);
     let cardData = card.children[0];
     let cardIcon = cardData.children[0];
     let cardTitle = cardData.children[1];
     let cardEdit = card.children[1];
     //if title exists, tooltip = title+url, else tooltip = url
-    cardData.title = (value.title) ? (value.title + "\n" + value.url) : value.url;
+    cardData.title = (bookmark.title) ? (bookmark.title + "\n" + bookmark.url) : bookmark.url;
     cardData.onclick = (event) => {
-        chrome.tabs.create({ 'url': value.url, 'active': settingsFocusControl.checked });
+        chrome.tabs.create({ 'url': bookmark.url, 'active': settingsFocusControl.checked });
     };
     //edit button
     cardEdit.onclick = (event) => {
-        openEditForm(value);
+        openEditForm(bookmark);
     }
     //icon, show default if loading error
     cardIcon.onerror = (event) => { event.target.src = './../icons/icon32.png' };
-    cardIcon.src = value.icon;
+    cardIcon.src = bookmark.icon;
     //description. if title exists, use that, else use url
-    cardTitle.innerHTML = (value.title) ? value.title : value.url;
+    cardTitle.innerHTML = (bookmark.title) ? bookmark.title : bookmark.url;
     return card;
 }
 
@@ -74,7 +74,7 @@ function removeBookmarksFromDisplay() {
 
 function addBookmarksToDisplay() {
     removeBookmarksFromDisplay();
-    getBookmarks((data) => {
+    storage.getBookmarks((data) => {
         for (let i = 0; i < data.length; i++) {
             bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
         }
@@ -85,24 +85,26 @@ function addBookmarksToDisplay() {
     form
 --------------------------------------------------------------------------------*/
 
-function openEditForm(value) {
+function openEditForm(bookmark) {
     editformModal.style.display = 'block';
-    if (value == null) {
+    if (bookmark) {
+        editformIdInput.value = bookmark.id;
+        editformUrlInput.value = bookmark.url;
+        editformTitleInput.value = bookmark.title;
+        editformIconInput.value = bookmark.icon;
+        editformDescription.innerHTML = "Edit Bookmark";
+        editformTitleInput.focus();
+    } else {
         editformIdInput.value = '';
         editformUrlInput.value = '';
         editformTitleInput.value = '';
         editformIconInput.value = '';
         editformDescription.innerHTML = "Add Bookmark";
         editformUrlInput.focus();
-    } else {
-        editformIdInput.value = value.id;
-        editformUrlInput.value = value.url;
-        editformTitleInput.value = value.title;
-        editformIconInput.value = value.icon;
-        editformDescription.innerHTML = "Edit Bookmark";
     }
-    editformDeleteBtn.style.display = (value == null) ? 'none' : 'block';
+    editformDeleteBtn.style.display = (bookmark) ? 'block' : 'none';
 }
+
 function closeEditForm() {
     editformModal.style.display = 'none';
 }
@@ -116,16 +118,16 @@ function initEditForm() {
         bookmark['title'] = editformTitleInput.value;
         bookmark['icon'] = editformIconInput.value;
         if (editformIdInput.value) {
-            updateBookmark(bookmark, closeEditForm);
+            storage.updateBookmark(bookmark, closeEditForm);
         } else {
-            addBookmark(bookmark, closeEditForm);
+            storage.addBookmark(bookmark, closeEditForm);
         }
     });
     editformCancelBtn.addEventListener('click', () => {
         closeEditForm();
     });
     editformDeleteBtn.addEventListener('click', () => {
-        deleteBookmark(editformIdInput.value, closeEditForm);
+        storage.deleteBookmark(editformIdInput.value, closeEditForm);
     });
 }
 
@@ -134,7 +136,7 @@ function initEditForm() {
 --------------------------------------------------------------------------------*/
 
 function loadSettings() {
-    getSettings((data) => {
+    storage.getSettings((data) => {
         settingsFocusControl.checked = data['focusOnOpen'];
     });
 }
@@ -142,7 +144,7 @@ function loadSettings() {
 function saveSettings() {
     let jsonObj = {}
     jsonObj['focusOnOpen'] = settingsFocusControl.checked;
-    setSettings(jsonObj);
+    storage.setSettings(jsonObj);
 }
 
 /*--------------------------------------------------------------------------------
@@ -151,11 +153,11 @@ function saveSettings() {
 
 controlAdd.addEventListener('click', (event) => openEditForm());
 controlClearAll.addEventListener('click', (event) => {
-    if (confirm("Are you sure you want to delete ALL bookmarks?")) removeAllBookmarks();
+    if (confirm("Are you sure you want to delete ALL bookmarks?")) storage.removeAllBookmarks();
 });
 settingsFocusControl.addEventListener('change', saveSettings);
 
-registerBookmarksChangeListener(addBookmarksToDisplay);
+storage.registerBookmarksChangeListener(addBookmarksToDisplay);
 loadSettings();
 initEditForm();
 addBookmarksToDisplay();

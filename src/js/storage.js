@@ -2,6 +2,10 @@ const chromeStorage = chrome.storage.local;
 const bookmarksKey = 'savedURLs';
 const settingsKey = 'settings';
 
+/*--------------------------------------------------------------------------------
+    settings
+--------------------------------------------------------------------------------*/
+
 function getSettings(callback) {
     chromeStorage.get(settingsKey, (data) => {
         callback(data[settingsKey] || {});
@@ -13,6 +17,9 @@ function setSettings(data, callback) {
     chromeStorage.set(jsonObj, callback);
 }
 
+/*--------------------------------------------------------------------------------
+    bookmarks
+--------------------------------------------------------------------------------*/
 
 function getBookmarks(callback) {
     chromeStorage.get(bookmarksKey, (data) => {
@@ -68,4 +75,17 @@ function registerBookmarksChangeListener(callback) {
     });
 }
 
-export { registerBookmarksChangeListener, getBookmarks, deleteBookmark, addBookmark, updateBookmark, removeAllBookmarks, getSettings, setSettings };
+/*--------------------------------------------------------------------------------
+    exports
+--------------------------------------------------------------------------------*/
+
+export {
+    registerBookmarksChangeListener,
+    getBookmarks,
+    deleteBookmark,
+    addBookmark,
+    updateBookmark,
+    removeAllBookmarks,
+    getSettings,
+    setSettings
+};

@@ -6,7 +6,6 @@ function getFaviconUrl(url) {
 }
 
 document.getElementById('btn').onclick = () => {
-    console.log("click");
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         let bookmark = {};
         bookmark['id'] = (new Date()).getTime().toString();
