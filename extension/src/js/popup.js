@@ -1,11 +1,12 @@
 import { addBookmark } from './storage.js';
+import { getFaviconUrl } from './utils.js';
 
-function getFaviconUrl(url) {
-    var regex = /([^\/\"\'>]*[^\/]*\/[^\/]*\/[^\/|\'\"]*)[\"\']?[^>]*/i;
-    return url.match(regex)[1] + '/favicon.ico';
-}
+const txt = document.getElementById('successText');
+const btn = document.getElementById('addBtn');
 
-document.getElementById('btn').onclick = () => {
+btn.onclick = () => {
+    txt.style.display = 'block';
+    btn.style.display = 'none';
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         let bookmark = {};
         bookmark['id'] = (new Date()).getTime().toString();
@@ -13,7 +14,7 @@ document.getElementById('btn').onclick = () => {
         bookmark['title'] = tabs[0].title.substring(0, 100);
         bookmark['icon'] = getFaviconUrl(tabs[0].url);
         addBookmark(bookmark, () => {
-            window.close();
+            setTimeout(window.close, 2000);
         });
     });
 };
