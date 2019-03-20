@@ -1,5 +1,5 @@
 {
-  "name": "My Home Tab",
+  "name": "MyHomeTab",
   "version": "0.1",
   "description": "My home tab",
   "permissions": [
@@ -11,7 +11,7 @@
   }, 
 
   "browser_action": {
-    "default_title": "My Home Tab",
+    "default_title": "MyHomeTab",
     "default_popup": "src/popup.html",
     "default_icon": {
       "16": "icons/icon16.png",

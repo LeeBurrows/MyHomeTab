@@ -72,9 +72,10 @@ label {
   border-radius: 0.5em;
   padding: 1em 0.5em;
   cursor: pointer;
+  transition: box-shadow 300ms ease-in-out;
 }
 .bookmark-data:hover {
-  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.25);
 }
 .bookmark-card-icon {
   width: 32px;
@@ -92,10 +93,11 @@ label {
 }
 .bookmark-controls {
   margin-top: 0.25em;
-  opacity: 0;
   background-color: gold;
   border-radius: 0.5em;
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 300ms ease-in-out;
 }
 .bookmark-controls:hover {
   opacity: 1;
