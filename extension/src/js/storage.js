@@ -1,5 +1,5 @@
 const chromeStorage = chrome.storage.local;
-const bookmarksKey = 'savedURLs';
+const bookmarksKey = 'bookmarks';
 const settingsKey = 'settings';
 
 /*--------------------------------------------------------------------------------
