@@ -18,6 +18,7 @@ const settingsFocusControl = document.getElementById('settingsFocusOnOpen');
 const bookmarkCardTemplate = bookmarksContainer.firstElementChild.cloneNode(true);
 
 let isReordering = false;
+let reorderingElement;
 let reorderingBookmarkIndex;
 let reorderingColumnCount;
 let reorderingRowCount;
@@ -61,7 +62,7 @@ function buildBookmarkHTML(bookmark) {
     cardData.title = (bookmark.title) ? (bookmark.title + "\n" + bookmark.url) : bookmark.url;
     cardData.onclick = (event) => {
         if (isReordering) return;
-        (event.ctrlKey) ? startReordering(event.currentTarget.parentNode) : chrome.tabs.create({ 'url': bookmark.url, 'active': settingsFocusControl.checked });
+        (event.ctrlKey) ? startReordering(card) : chrome.tabs.create({ 'url': bookmark.url, 'active': settingsFocusControl.checked });
     };
     //edit button
     cardEdit.onclick = (event) => {
@@ -116,27 +117,29 @@ function addBookmarksToDisplay() {
 --------------------------------------------------------------------------------*/
 
 function startReordering(ele) {
-    isReordering = true;
+    let computedStyle = window.getComputedStyle(bookmarksContainer);
 
-    var computedStyle = window.getComputedStyle(bookmarksContainer, null);
+    let firstBookmarkDomRect = bookmarksContainer.children[0].getBoundingClientRect();
 
-    let paddingLeft = parseInt(computedStyle.paddingLeft);
-    let paddingTop = parseInt(computedStyle.paddingTop);
-    let gapX = parseInt(computedStyle.gridColumnGap);
-    let gapY = parseInt(computedStyle.gridRowGap);
     let templateColumns = computedStyle.gridTemplateColumns.split(' ');
     let templateRows = computedStyle.gridTemplateRows.split(' ');
     let cardWidth = parseInt(templateColumns[0]);
     let cardHeight = parseInt(templateRows[0]);
+    let gapX = parseInt(computedStyle.gridColumnGap);
+    let gapY = parseInt(computedStyle.gridRowGap);
 
+    isReordering = true;
     reorderingBookmarkIndex = calcBookmarkIndex(ele);
-    reorderingColumnCount = templateColumns.length;
+    reorderingElement = ele;
     reorderingCellCount = bookmarksContainer.children.length;
+    reorderingColumnCount = templateColumns.length;
     reorderingRowCount = Math.ceil(reorderingCellCount / reorderingColumnCount);
-    reorderingOriginX = paddingLeft;
-    reorderingOriginY = paddingTop;
+    reorderingOriginX = firstBookmarkDomRect.left;
+    reorderingOriginY = firstBookmarkDomRect.top;
     reorderingCellWidth = cardWidth + gapX;
     reorderingCellHeight = cardHeight + gapY;
+
+    reorderingElement.children[0].className = 'bookmark-data-reordering';
 
     document.addEventListener('mousemove', doReordering);
     document.addEventListener('mousedown', endReordering);
@@ -144,10 +147,7 @@ function startReordering(ele) {
 }
 
 function endReordering() {
-    document.removeEventListener('mousemove', doReordering);
-    document.removeEventListener('mousedown', endReordering);
-    window.removeEventListener('resize', cancelReordering);
-    isReordering = false;
+    cancelReordering();
     let newIndex = calcCellIndex(event.clientX, event.clientY);
     if (reorderingBookmarkIndex !== newIndex) {
         storage.reorderBookmark(reorderingBookmarkIndex, newIndex);
@@ -158,12 +158,21 @@ function cancelReordering() {
     document.removeEventListener('mousemove', doReordering);
     document.removeEventListener('mousedown', endReordering);
     window.removeEventListener('resize', cancelReordering);
-    isReordering = false;
+    reorderingElement.children[0].className = 'bookmark-data';
+    //delay state change slightly
+    //incase clicking to end reordering while mouse is over a card; this would trigger opening a new tab
+    setTimeout(() => isReordering = false, 100);
 }
 
 function doReordering(event) {
     let currentIndex = calcCellIndex(event.clientX, event.clientY);
-    console.log(currentIndex);
+    if (currentIndex > reorderingBookmarkIndex) {
+        reorderingBookmarkIndex = currentIndex;
+        bookmarksContainer.insertBefore(reorderingElement, bookmarksContainer.children[currentIndex + 1]);
+    } else if (currentIndex < reorderingBookmarkIndex) {
+        reorderingBookmarkIndex = currentIndex;
+        bookmarksContainer.insertBefore(reorderingElement, bookmarksContainer.children[currentIndex]);
+    }
 }
 
 function calcCellIndex(x, y) {
@@ -204,9 +213,13 @@ function openEditForm(bookmark) {
         editformUrlInput.focus();
     }
     editformDeleteBtn.style.display = (bookmark) ? 'block' : 'none';
+    editformContainer.addEventListener('click', closeEditForm);
 }
 
-function closeEditForm() {
+function closeEditForm(event) {
+    //if called by form container click listener, ensure click is outside of form, else ignore it
+    if (event && event.target !== event.currentTarget) return;
+    editformContainer.removeEventListener('click', closeEditForm);
     editformContainer.style.display = 'none';
 }
 
@@ -265,10 +278,6 @@ settingsFocusControl.addEventListener('change', saveSettings);
 /*--------------------------------------------------------------------------------
     startup
 --------------------------------------------------------------------------------*/
-
-editformContainer.addEventListener('click', (event) => {
-    if (event.target === event.currentTarget) closeEditForm();
-});
 
 storage.registerBookmarksChangeListener(addBookmarksToDisplay);
 loadSettings();

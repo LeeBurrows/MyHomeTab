@@ -53,14 +53,23 @@ input[type="text"] {
 .bookmark-card {
   width: var(--size-bookmark-card);
 }
+
 .bookmark-data {
   background-color: var(--colour-light);
   border-radius: 0.5em;
   padding: 1em 0.5em;
   cursor: pointer;
-  transition: box-shadow 300ms ease-in-out;
+  transition: background-color 250ms ease-in-out, box-shadow 250ms ease-in-out;
+}
+.bookmark-data-reordering {
+  background-color: var(--colour-hilite);
+  border-radius: 0.5em;
+  padding: 1em 0.5em;
+  cursor: pointer;
+  border: 2px solid black;
 }
 .bookmark-data:hover {
+  background-color: var(--colour-hilite);
   box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.25);
 }
 .bookmark-data-icon {
