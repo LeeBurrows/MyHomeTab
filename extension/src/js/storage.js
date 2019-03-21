@@ -33,7 +33,6 @@ function setBookmarks(data, callback) {
     chromeStorage.set(jsonObj, callback);
 }
 
-
 function deleteBookmark(id, callback) {
     getBookmarks((data) => {
         for (let i = 0; i < data.length; i++) {
@@ -46,9 +45,14 @@ function deleteBookmark(id, callback) {
     });
 }
 
-function addBookmark(value, callback) {
+function addBookmark(url, title, icon, callback) {
     getBookmarks((data) => {
-        data.push(value);
+        let obj = {};
+        obj['id'] = (new Date()).getTime().toString();
+        obj['url'] = url;
+        obj['title'] = title;
+        obj['icon'] = icon;
+        data.push(obj);
         setBookmarks(data, callback);
     });
 }
@@ -61,6 +65,14 @@ function updateBookmark(value, callback) {
                 break;
             }
         }
+        setBookmarks(data, callback);
+    });
+}
+
+function reorderBookmark(oldIndex, newIndex, callback) {
+    getBookmarks((data) => {
+        let bookmarkToMove = data.splice(oldIndex, 1)[0];
+        data.splice(newIndex, 0, bookmarkToMove);
         setBookmarks(data, callback);
     });
 }
@@ -85,6 +97,7 @@ export {
     deleteBookmark,
     addBookmark,
     updateBookmark,
+    reorderBookmark,
     removeAllBookmarks,
     getSettings,
     setSettings

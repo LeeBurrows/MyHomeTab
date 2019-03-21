@@ -58,11 +58,11 @@ function buildBookmarkHTML(bookmark) {
     cardEdit.onclick = (event) => {
         openEditForm(bookmark);
     }
-    //icon, show default if loading error
-    cardIcon.onerror = (event) => { event.target.src = './../icons/icon32.png' };
+    //icon, show default if none
+    if (bookmark.icon === '') bookmark.icon = './../icons/icon32.png';
     cardIcon.src = bookmark.icon;
     //description. if title exists, use that, else use url
-    cardTitle.innerHTML = (bookmark.title) ? bookmark.title : bookmark.url;
+    cardTitle.innerHTML = ((bookmark.title) ? bookmark.title : bookmark.url);
     return card;
 }
 
@@ -112,15 +112,19 @@ function closeEditForm() {
 function initEditForm() {
     editform.addEventListener('submit', () => {
         if (!editformUrlInput.validity.valid) return;
-        let bookmark = {};
-        bookmark['id'] = editformIdInput.value || (new Date()).getTime().toString();
-        bookmark['url'] = editformUrlInput.value;
-        bookmark['title'] = editformTitleInput.value;
-        bookmark['icon'] = editformIconInput.value;
+        let id = editformIdInput.value;
+        let url = editformUrlInput.value;
+        let title = editformTitleInput.value;
+        let icon = editformIconInput.value;
         if (editformIdInput.value) {
+            let bookmark = {};
+            bookmark['id'] = id;
+            bookmark['url'] = url;
+            bookmark['title'] = title;
+            bookmark['icon'] = icon;
             storage.updateBookmark(bookmark, closeEditForm);
         } else {
-            storage.addBookmark(bookmark, closeEditForm);
+            storage.addBookmark(url, title, icon, closeEditForm);
         }
     });
     editformCancelBtn.addEventListener('click', () => {
