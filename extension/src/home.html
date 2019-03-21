@@ -6,25 +6,36 @@
     <link rel="stylesheet" href="./css/home.css">
 </head>
 <body>
-    <input type="text" id="searching" placeholder="search..." autofocus>
 
-    <div id="bookmarksContainer">
+    <div id="bookmarksContainer" class="bookmarksContainer">
         <!-- template for bookmark cards. will be removed on startup -->
         <div class="bookmark-card" title="">
             <div class="bookmark-data">
-                <img class="bookmark-card-icon" src="">
-                <p class="bookmark-card-title"></p>
+                <img class="bookmark-data-icon" src="">
+                <p class="bookmark-data-title"></p>
             </div>
-            <div class="bookmark-controls">EDIT</div>
+            <div class="bookmark-control">EDIT</div>
         </div>
         <!-- end of template -->
     </div>
 
-    <div id="editformModal">
+
+    <div id="searchContainer">
+        <input id="searchInput" type="text" placeholder="search..." autofocus>
+    </div>
+
+
+    <div id="controlsContainer">
+        <a href="#" id="control-clear-all">CLEAR ALL</a> &middot; <a href="#" id="control-add">ADD</a>
+        <div><input type="checkbox" id="settingsFocusOnOpen"> Focus tab when opening?</div>
+    </div>
+
+
+    <div id="editformContainer">
         <form id="editform" novalidate>
             <input type="hidden" id="editformId">
-            <p id="editformDescription">&nbsp;</p>
-            <label for="editformUrl">Url <span class="editformRequired">[Required]</span></label>
+            <p id="editformHeading">&nbsp;</p>
+            <label for="editformUrl">Url <span class="editformSubLabel">[Required]</span></label>
             <input type="text" id="editformUrl" maxlength="500" required>
             <label for="editformTitle">Title</label>
             <input type="text" id="editformTitle" maxlength="100">
@@ -38,10 +49,7 @@
         </form>
     </div>
 
-    <div id="controls">
-        <a href="#" id="control-clear-all">CLEAR ALL</a> &middot; <a href="#" id="control-add">ADD</a>
-        <div><input type="checkbox" id="settingsFocusOnOpen"> Focus tab when opening?</div>
-    </div>
+
     <script src="./js/home.js" type="module"></script>
 </body>
 </html>

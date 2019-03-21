@@ -1,69 +1,60 @@
 body {
-  padding: 5em;
-  background-image: linear-gradient(goldenrod, darkgoldenrod);
+  padding: 0;
+  background-image: linear-gradient(var(--colour-primary), var(--colour-secondary));
   background-repeat: no-repeat;
   background-attachment: fixed;
+  display: grid;
+  grid-template-rows: auto 12em 4em;
+  height: 100vh;
 }
 
 input[type="text"] {
-  color: rgb(60, 60, 60);
-  border: 1px solid darkgoldenrod;
+  color: var(--colour-text);
+  background-color: var(--colour-light);
+  border: 1px solid var(--colour-secondary);
   padding: 0.75em 0.25em;
   margin-bottom: 1em;
   width: 100%;
 }
-input:invalid {
-  border-color: red;
-}
-input[type="submit"],
-input[type="button"] {
-  font-weight: bold;
-  width: 8em;
-  margin-left: 2em;
-  padding: 1em;
-  cursor: pointer;
-  border: 1px solid darkgoldenrod;
-}
-input[type="submit"]:hover,
-input[type="button"]:hover {
-  background-color: gold;
-}
-label {
-  font-size: 1.25em;
-  font-weight: bold;
-  padding: 0 0 0.3em 0;
-  display: block;
-}
-
-* {
-  box-sizing: border-box;
-}
 
 /* search */
 
-#searching {
+#searchContainer {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: grid;  
+  align-items: center;
+  justify-items: center;
+}
+#searchInput {
   width: 20em;
-  margin: 3em auto;
+  margin: auto;
   padding: 0.5em;
   font-size: 2em;
 }
 
+/* controls */
+
+#controlsContainer {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding-top: 0.4em;
+}
+
 /* bookmarks */
 
-#bookmarksContainer {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  padding: 0;
+.bookmarksContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--size-bookmark-card));
+  grid-template-rows: repeat(auto-fill, var(--size-bookmark-card));
+  column-gap: 1em;
+  row-gap: 1em;
+  padding: 4em;
+  overflow: auto;
 }
-
 .bookmark-card {
-  width: 8em;
-  margin: 1em;
+  width: var(--size-bookmark-card);
 }
 .bookmark-data {
-  background-color: white;
+  background-color: var(--colour-light);
   border-radius: 0.5em;
   padding: 1em 0.5em;
   cursor: pointer;
@@ -72,13 +63,13 @@ label {
 .bookmark-data:hover {
   box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.25);
 }
-.bookmark-card-icon {
+.bookmark-data-icon {
   width: 32px;
   height: 32px;
   object-fit: cover;
   margin-bottom: 0.5em;
 }
-.bookmark-card-title {
+.bookmark-data-title {
   font-size: 0.85em;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -86,21 +77,21 @@ label {
   margin: 0;
   padding: 0;
 }
-.bookmark-controls {
+.bookmark-control {
   margin-top: 0.25em;
-  background-color: gold;
+  background-color: var(--colour-hilite);
   border-radius: 0.5em;
   cursor: pointer;
   opacity: 0;
   transition: opacity 300ms ease-in-out;
 }
-.bookmark-controls:hover {
+.bookmark-control:hover {
   opacity: 1;
 }
 
 /* form */
 
-#editformModal {
+#editformContainer {
   display: none;
   position: fixed;
   z-index: 10;
@@ -110,33 +101,52 @@ label {
   height: 100%;
   overflow: auto;
   background-color: rgba(0,0,0,0.4);
-  display: none;
 }
 #editform {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
   width: 40em;
+  text-align: left;
   padding: 1.5em;
   margin: auto;
   border-radius: 1em;
   background-color: rgb(240, 240, 240);
   box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.4);
-  text-align: left;
 }
-#editformDescription {
+#editformHeading {
   font-weight: bold;
   font-size: 2em;
   padding: 0;
-  margin: 0 0 2em 0;
+  margin: 0 0 1.2em 0;
 }
-
-.editformRequired {
+.editformSubLabel {
   font-size: 0.7em;
   font-weight: normal;
-  vertical-align:baseline;
+  vertical-align: baseline;
 }
-
+label {
+  font-size: 1.25em;
+  font-weight: bold;
+  padding: 0 0 0.3em 0;
+  display: block;
+}
+input:invalid {
+  border-color: var(--colour-warning);
+}
+input[type="submit"],
+input[type="button"] {
+  font-weight: bold;
+  width: 8em;
+  margin-left: 2em;
+  padding: 1em;
+  cursor: pointer;
+  border: 1px solid var(--colour-secondary);
+}
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  background-color: var(--colour-primary);
+}
 .editformButtonsRow {
   display: flex;
   justify-content: flex-end;
@@ -144,17 +154,6 @@ label {
   width: 100%;
   margin-top: 0.7em;
 }
-
 #editformDelete {
-  color: #c00;
-}
-
-#controls {
-  position: absolute;
-  bottom: 2em;
-  left: 2em;
-}
-
-#controls a {
-  color: black;
+  color: var(--colour-warning)
 }

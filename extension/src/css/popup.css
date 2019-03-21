@@ -1,7 +1,7 @@
 body {
   padding: 0.3em;
 }
-
+/* div size specified to force window to size itself to surround div */
 #container {
   display: grid;
   align-items: center;
@@ -10,23 +10,19 @@ body {
   height: 3.5em;
 }
 
+/* hide initially */
 #successText {
   display: none;
 }
 
 #addBtn {
-  background-color: white;
-  text-align: center;
-  vertical-align: middle;
-  text-decoration: none;
+  background-color: var(--colour-light);
   border: none;
   padding: 1em;
-  width: 100%;
-  display: inline-block;
   cursor: pointer;
   white-space: nowrap;
 }
 #addBtn:hover {
-  color: white;
-  background-color: goldenrod;
+  color: var(--colour-light);
+  background-color: var(--colour-primary);
 }
