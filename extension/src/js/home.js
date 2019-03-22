@@ -1,4 +1,14 @@
 import * as storage from './storage.js';
+/**
+ * ======================================================================
+ * home.js
+ * 
+ * Scripts for home.html
+ * ======================================================================
+ */
+
+
+
 
 const bookmarksContainer = document.getElementById('bookmarksContainer');
 const editformContainer = document.getElementById('editformContainer');
@@ -12,14 +22,13 @@ const editformCancelBtn = document.getElementById('editformCancel');
 const editformDeleteBtn = document.getElementById('editformDelete');
 const controlAdd = document.getElementById('control-add');
 const controlClearAll = document.getElementById('control-clear-all');
-
-const settingsFocusControl = document.getElementById('settingsFocusOnOpen');
-
+const optionsFocusControl = document.getElementById('optionsFocusOnOpen');
 const bookmarkCardTemplate = bookmarksContainer.firstElementChild.cloneNode(true);
 
 let isReordering = false;
 let reorderingElement;
 let reorderingBookmarkIndex;
+let reorderingBookmarkStartIndex;
 let reorderingColumnCount;
 let reorderingRowCount;
 let reorderingCellCount;
@@ -28,31 +37,13 @@ let reorderingOriginY;
 let reorderingCellWidth;
 let reorderingCellHeight;
 
-/*--------------------------------------------------------------------------------
-    search
---------------------------------------------------------------------------------*/
-
-document.getElementById('searchInput').addEventListener('keydown', (event) => {
-    if (event.key == "Enter") {
-        chrome.tabs.create({ 'url': 'https://google.com/search?q=' + event.target.value });
-    }
-});
-
-/*--------------------------------------------------------------------------------
-    bookmarks
---------------------------------------------------------------------------------*/
-
-/*
-    <div class="bookmark-card" title="">
-        <div class="bookmark-data">
-            <img class="bookmark-data-icon" src="">
-            <p class="bookmark-data-title"></p>
-        </div>
-        <div class="bookmark-control">EDIT</div>
-    </div>
-*/
-
-function buildBookmarkHTML(bookmark) {
+/**
+ * Generate HTML elements for bookmark card.
+ * 
+ * @param {object} bookmark - The bookmark to populate card with
+ * @returns {HTMLElement}
+ */
+function buildBookmarkCardHTML(bookmark) {
     let card = bookmarkCardTemplate.cloneNode(true);
     let cardData = card.children[0];
     let cardIcon = cardData.children[0];
@@ -62,60 +53,48 @@ function buildBookmarkHTML(bookmark) {
     cardData.title = (bookmark.title) ? (bookmark.title + "\n" + bookmark.url) : bookmark.url;
     cardData.onclick = (event) => {
         if (isReordering) return;
-        (event.ctrlKey) ? startReordering(card) : chrome.tabs.create({ 'url': bookmark.url, 'active': settingsFocusControl.checked });
+        (event.ctrlKey) ? startReordering(card) : chrome.tabs.create({ 'url': bookmark.url, 'active': optionsFocusControl.checked });
     };
     //edit button
     cardEdit.onclick = (event) => {
         openEditForm(bookmark);
     }
-    //icon. show default if none exists
+    //icon. show default if none stored, show default if fails to load
+    cardIcon.onerror = () => cardIcon.src = './../icons/icon32.png';
     cardIcon.src = bookmark.icon || './../icons/icon32.png';
     //description. if title exists, use that, else use url
     cardTitle.innerHTML = bookmark.title || bookmark.url;
     return card;
 }
 
+/**
+ * Remove all bookmark cards from DOM.
+ */
 function removeBookmarksFromDisplay() {
     while (bookmarksContainer.hasChildNodes()) {
         bookmarksContainer.removeChild(bookmarksContainer.firstChild);
     }
 }
 
+/**
+ * Retrieve bookmarks from storage and add cards to DOM.
+ * 
+ * Removes any existing cards from DOM first
+ */
 function addBookmarksToDisplay() {
     removeBookmarksFromDisplay();
     storage.getBookmarks((data) => {
         for (let i = 0; i < data.length; i++) {
-            bookmarksContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
-            // bookmarkContainer.appendChild(buildBookmarkHTML(data[i]));
+            bookmarksContainer.appendChild(buildBookmarkCardHTML(data[i]));
         }
     });
 }
 
-/*--------------------------------------------------------------------------------
-    reordering
---------------------------------------------------------------------------------*/
-
+/**
+ * Initiate card re-positioning
+ * 
+ * @param {HTMLElement} ele - Root node of the card to move
+ */
 function startReordering(ele) {
     let computedStyle = window.getComputedStyle(bookmarksContainer);
 
@@ -129,7 +108,7 @@ function startReordering(ele) {
     let gapY = parseInt(computedStyle.gridRowGap);
 
     isReordering = true;
-    reorderingBookmarkIndex = calcBookmarkIndex(ele);
+    reorderingBookmarkIndex = reorderingBookmarkStartIndex  = calcBookmarkIndex(ele);
     reorderingElement = ele;
     reorderingCellCount = bookmarksContainer.children.length;
     reorderingColumnCount = templateColumns.length;
@@ -142,39 +121,59 @@ function startReordering(ele) {
     reorderingElement.children[0].className = 'bookmark-data-reordering';
 
     document.addEventListener('mousemove', doReordering);
-    document.addEventListener('mousedown', endReordering);
-    window.addEventListener('resize', cancelReordering);
+    document.addEventListener('mousedown', stopReordering);
+    window.addEventListener('resize', exitReordering);
 }
 
-function endReordering() {
-    cancelReordering();
+/**
+ * Conclude card re-positioning
+ * 
+ * @param {mouseevent} event - MouseDown event
+ */
+function stopReordering(event) {
+    exitReordering();
     let newIndex = calcCellIndex(event.clientX, event.clientY);
-    if (reorderingBookmarkIndex !== newIndex) {
-        storage.reorderBookmark(reorderingBookmarkIndex, newIndex);
+    if (reorderingBookmarkStartIndex !== newIndex) {
+        storage.reorderBookmark(reorderingBookmarkStartIndex, newIndex);
     }
 }
 
-function cancelReordering() {
+/**
+ * Tidy up after re-positioning
+ */
+function exitReordering() {
     document.removeEventListener('mousemove', doReordering);
-    document.removeEventListener('mousedown', endReordering);
-    window.removeEventListener('resize', cancelReordering);
+    document.removeEventListener('mousedown', stopReordering);
+    window.removeEventListener('resize', exitReordering);
     reorderingElement.children[0].className = 'bookmark-data';
-    //delay state change slightly
-    //incase clicking to end reordering while mouse is over a card; this would trigger opening a new tab
+    //delay state change slightly incase mouse is over a card when clicking
+    //to end reordering; this would trigger opening a new tab if reordering was not still true
     setTimeout(() => isReordering = false, 100);
 }
 
+/**
+ * Update card position.
+ * 
+ * @param {mouseevent} event MouseMove event
+ */
 function doReordering(event) {
     let currentIndex = calcCellIndex(event.clientX, event.clientY);
     if (currentIndex > reorderingBookmarkIndex) {
-        reorderingBookmarkIndex = currentIndex;
         bookmarksContainer.insertBefore(reorderingElement, bookmarksContainer.children[currentIndex + 1]);
-    } else if (currentIndex < reorderingBookmarkIndex) {
         reorderingBookmarkIndex = currentIndex;
+    } else if (currentIndex < reorderingBookmarkIndex) {
         bookmarksContainer.insertBefore(reorderingElement, bookmarksContainer.children[currentIndex]);
+        //reorderingBookmarkIndex = currentIndex;
     }
 }
 
+/**
+ * Calculate position index for a given screen position
+ * 
+ * @param {int} x - screen x position
+ * @param {int} y - screen y position
+ * @returns {int} - position index
+ */
 function calcCellIndex(x, y) {
     let xpos = Math.max(0, x - reorderingOriginX);
     let ypos = Math.max(0, y - reorderingOriginY);
@@ -183,6 +182,12 @@ function calcCellIndex(x, y) {
     return Math.min(reorderingCellCount - 1, cellX + reorderingColumnCount * cellY);
 }
 
+/**
+ * Find card position index for associated bookmark
+ * 
+ * @param {object} bookmark - the bookmark
+ * @returns {int} - position index
+ */
 function calcBookmarkIndex(bookmark) {
     for (let i = 0; i < bookmarksContainer.children.length; i++) {
         if (bookmark === bookmarksContainer.children[i]) {
@@ -191,10 +196,11 @@ function calcBookmarkIndex(bookmark) {
     }
 }
 
-/*--------------------------------------------------------------------------------
-    form
---------------------------------------------------------------------------------*/
-
+/**
+ * Open edit bookmark form
+ * 
+ * @param {object} bookmark - the bookmark to edit 
+ */
 function openEditForm(bookmark) {
     editformContainer.style.display = 'block';
     if (bookmark) {
@@ -216,6 +222,12 @@ function openEditForm(bookmark) {
     editformContainer.addEventListener('click', closeEditForm);
 }
 
+/**
+ * Close edit bookmark form.
+ * 
+ * @param {event} event - optional
+ */
+
 function closeEditForm(event) {
     //if called by form container click listener, ensure click is outside of form, else ignore it
     if (event && event.target !== event.currentTarget) return;
@@ -223,6 +235,9 @@ function closeEditForm(event) {
     editformContainer.style.display = 'none';
 }
 
+/**
+ * Prepare edit bookmark form.
+ */
 function initEditForm() {
     editform.addEventListener('submit', () => {
         if (!editformUrlInput.validity.valid) return;
@@ -249,38 +264,57 @@ function initEditForm() {
     });
 }
 
-/*--------------------------------------------------------------------------------
-    settings
---------------------------------------------------------------------------------*/
-
-function loadSettings() {
+/**
+ * Retrieve user options from storage and populate display
+ */
+function loadOptions() {
     storage.getSettings((data) => {
-        settingsFocusControl.checked = data['focusOnOpen'];
+        optionsFocusControl.checked = data['focusOnOpen'];
     });
 }
 
-function saveSettings() {
-    let jsonObj = {}
-    jsonObj['focusOnOpen'] = settingsFocusControl.checked;
-    storage.setSettings(jsonObj);
+/**
+ * Retrieve user options from display and save to storage
+ */
+function saveOptions() {
+    let obj = {}
+    obj['focusOnOpen'] = optionsFocusControl.checked;
+    storage.setSettings(obj);
 }
 
-/*--------------------------------------------------------------------------------
-    controls
---------------------------------------------------------------------------------*/
+/**
+ * Setup search.
+ * 
+ * If user presses ENTER while search input has focus, and input is not empty,
+ * open new tab and navigate to google
+ */
+document.getElementById('searchInput').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && event.target.value.length > 0) {
+        chrome.tabs.create({ 'url': 'https://google.com/search?q=' + event.target.value });
+    }
+});
 
+/**
+ * Setup controls.
+ */
 controlAdd.addEventListener('click', (event) => openEditForm());
 controlClearAll.addEventListener('click', (event) => {
     if (confirm("Are you sure you want to delete ALL bookmarks?")) storage.removeAllBookmarks();
 });
-settingsFocusControl.addEventListener('change', saveSettings);
+/**
+ * Setup user options.
+ */
+optionsFocusControl.addEventListener('change', saveOptions);
+loadOptions();
 
-/*--------------------------------------------------------------------------------
-    startup
---------------------------------------------------------------------------------*/
-
+/**
+ * Final setup.
+ * 
+ * 1) Listen for storage changes
+ * 2) Prep the edit form
+ * 3) Show bookmarks
+ */
 storage.registerBookmarksChangeListener(addBookmarksToDisplay);
-loadSettings();
 initEditForm();
 addBookmarksToDisplay();
 

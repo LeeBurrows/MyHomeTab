@@ -1,7 +1,7 @@
 body {
   padding: 0.3em;
 }
-/* div size specified to force window to size itself to surround div */
+/* div size specified to force window to size itself to surround container */
 #container {
   display: grid;
   align-items: center;
@@ -11,18 +11,19 @@ body {
 }
 
 /* hide initially */
-#successText {
+#message {
   display: none;
+  user-select: none;
 }
 
-#addBtn {
+#control {
   background-color: var(--colour-light);
   border: none;
   padding: 1em;
   cursor: pointer;
   white-space: nowrap;
 }
-#addBtn:hover {
+#control:hover {
   color: var(--colour-light);
   background-color: var(--colour-primary);
 }

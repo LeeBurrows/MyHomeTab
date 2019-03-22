@@ -1,36 +1,66 @@
-function getRootUrl(url) {
-    var regex = /([^\/\"\'>]*[^\/]*\/[^\/]*\/[^\/|\'\"]*)[\"\']?[^>]*/i;
-    return url.match(regex)[1];
-}
+/**
+ * ======================================================================
+ * utils.js
+ * 
+ * Helper functions.
+ * 
+ * TODO:
+ * testImageExistence() - use Promises; will enable findFavicon to test
+ * more variations of favicon URL without indentation insanity
+ * ======================================================================
+ */
 
-function lookForImage(url, callback) {
+
+
+
+/**
+ * Determine if image exists at URL.
+ * 
+ * @param {string} url - a URL to test
+ * Callback signature: callback(url:string = null)
+ * Success: callback(validated url)
+ * Failed: callback(null)
+ */
+function testImageExistence(url, callback) {
     let img = new Image();
     img.onload = () => {
         callback(url);
     };
     img.onerror = () => {
-        callback();
+        callback(null);
     };
     img.src = url;
 }
 
-function findIcon(url, callback) {
-    const rootUrl = getRootUrl(url);
-    lookForImage(rootUrl + '/favicon.png', (result) => {
+/**
+ * Search for favicon at domain of URL.
+ * Checks <domain>/favicon.png and then <domain>/favicon.ico
+ * 
+ * @param {string} url - a URL for website
+ * Callback signature: callback(url:string = null)
+ * Success: callback(favicon url)
+ * Failed: callback(null)
+ */
+function findFavicon(url, callback) {
+    const domainUrl = url.match(/([^\/\"\'>]*[^\/]*\/[^\/]*\/[^\/|\'\"]*)[\"\']?[^>]*/i)[1]; // extract domain from URL
+    testImageExistence(domainUrl + '/favicon.png', (result) => {
         if (result) {
             callback(result);
         } else {
-            lookForImage(rootUrl + '/favicon.ico', (result) => {
+            testImageExistence(domainUrl + '/favicon.ico', (result) => {
                 if (result) {
                     callback(result);
                 } else {
-                    callback('');
+                    callback(null);
                 }
             });
         }
     });
 }
 
+/**
+ * Exports
+ */
 export {
-    findIcon
+    findFavicon as findFavicon
 }

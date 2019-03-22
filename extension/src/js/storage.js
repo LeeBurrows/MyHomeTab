@@ -1,38 +1,70 @@
-const chromeStorage = chrome.storage.local;
-const bookmarksKey = 'bookmarks';
-const settingsKey = 'settings';
+/**
+ * ======================================================================
+ * storage.js
+ * 
+ * Extension-specific service for Chrome Storage CRUD operations.
+ * ======================================================================
+ */
 
-/*--------------------------------------------------------------------------------
-    settings
---------------------------------------------------------------------------------*/
 
-function getSettings(callback) {
-    chromeStorage.get(settingsKey, (data) => {
-        callback(data[settingsKey] || {});
+
+
+const chromeStorage = chrome.storage.local; //chrome.storage.sync also works
+const storageKey_bookmarks = 'bookmarks'; // key for bookmarks store
+const storageKey_options = 'options'; // key for user option store
+
+/**
+ * Read user options.
+ * 
+ * Callback signature: callback(user-options:object)
+ */
+function getUserOptions(callback) {
+    chromeStorage.get(storageKey_options, (data) => {
+        callback(data[storageKey_options] || {});
     });
 }
-function setSettings(data, callback) {
+
+/**
+ * Write user options.
+ * 
+ * @param {object} data - User options
+ * Callback signature: callback()
+ */
+function setUserOptions(data, callback) {
     let jsonObj = {};
-    jsonObj[settingsKey] = data;
+    jsonObj[storageKey_options] = data;
     chromeStorage.set(jsonObj, callback);
 }
 
-/*--------------------------------------------------------------------------------
-    bookmarks
---------------------------------------------------------------------------------*/
-
+/**
+ * Read bookmarks.
+ * 
+ * Callback signature: callback(bookmarks:array)
+ */
 function getBookmarks(callback) {
-    chromeStorage.get(bookmarksKey, (data) => {
-        callback(data[bookmarksKey] || []);
+    chromeStorage.get(storageKey_bookmarks, (data) => {
+        callback(data[storageKey_bookmarks] || []);
     });
 }
 
+/**
+ * Write bookmarks.
+ * 
+ * @param {array} data - bookmarks
+ * Callback signature: callback()
+ */
 function setBookmarks(data, callback) {
     let jsonObj = {};
-    jsonObj[bookmarksKey] = data;
+    jsonObj[storageKey_bookmarks] = data;
     chromeStorage.set(jsonObj, callback);
 }
 
+/**
+ * Delete bookmark.
+ * 
+ * @param {string} id - ID of bookmark to delete
+ * Callback signature: callback()
+ */
 function deleteBookmark(id, callback) {
     getBookmarks((data) => {
         for (let i = 0; i < data.length; i++) {
@@ -45,23 +77,37 @@ function deleteBookmark(id, callback) {
     });
 }
 
+/**
+ * Add bookmark.
+ * 
+ * @param {string} url - bookmark URL
+ * @param {string} title - bookmark title
+ * @param {string} icon - bookmark icon URL
+ * Callback signature: callback()
+ */
 function addBookmark(url, title, icon, callback) {
     getBookmarks((data) => {
         let obj = {};
         obj['id'] = (new Date()).getTime().toString();
-        obj['url'] = url;
-        obj['title'] = title;
-        obj['icon'] = icon;
+        obj['url'] = url || '';
+        obj['title'] = title || '';
+        obj['icon'] = icon || '';
         data.push(obj);
         setBookmarks(data, callback);
     });
 }
 
-function updateBookmark(value, callback) {
+/**
+ * Update bookmark.
+ * 
+ * @param {object} bookmark - Bookmark to update
+ * Callback signature: callback()
+ */
+function updateBookmark(bookmark, callback) {
     getBookmarks((data) => {
         for (let i = 0; i < data.length; i++) {
-            if (data[i].id === value.id) {
-                data[i] = value;
+            if (data[i].id === bookmark.id) {
+                data[i] = bookmark;
                 break;
             }
         }
@@ -69,6 +115,13 @@ function updateBookmark(value, callback) {
     });
 }
 
+/**
+ * Reposition bookmark in stored data list.
+ * 
+ * @param {int} oldIndex - Index of bookmark to move
+ * @param {int} newIndex - Index of new bookmark location
+ * Callback signature: callback()
+ */
 function reorderBookmark(oldIndex, newIndex, callback) {
     getBookmarks((data) => {
         let bookmarkToMove = data.splice(oldIndex, 1)[0];
@@ -77,28 +130,40 @@ function reorderBookmark(oldIndex, newIndex, callback) {
     });
 }
 
+/**
+ * Deleta all bookmarks.
+ * 
+ * Callback signature: callback()
+ */
 function removeAllBookmarks(callback) {
-    chromeStorage.remove(bookmarksKey, callback);
+    chromeStorage.remove(storageKey_bookmarks, callback);
 }
 
-function registerBookmarksChangeListener(callback) {
+/**
+ * Add callback event for changes to bookmarks.
+ * 
+ * Event callback signature: callback()
+ * 
+ * TODO:
+ * Add removeBookmarksChangeEventListener
+ */
+function addBookmarksChangeEventListener(callback) {
     chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (changes[bookmarksKey]) callback();
+        if (changes[storageKey_bookmarks]) callback();
     });
 }
 
-/*--------------------------------------------------------------------------------
-    exports
---------------------------------------------------------------------------------*/
-
+/**
+ * Exports
+ */
 export {
-    registerBookmarksChangeListener,
+    addBookmarksChangeEventListener as registerBookmarksChangeListener,
     getBookmarks,
     deleteBookmark,
     addBookmark,
     updateBookmark,
     reorderBookmark,
     removeAllBookmarks,
-    getSettings,
-    setSettings
+    getUserOptions as getSettings,
+    setUserOptions as setSettings
 };
