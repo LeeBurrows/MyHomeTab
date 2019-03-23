@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>MyHomeTab</title>
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/home.css">
 </head>
+
 <body>
 
-    <div id="bookmarksContainer" class="bookmarksContainer">
+    <div id="bookmarksContainer">
         <!-- template for bookmark cards. will be removed on startup -->
         <div class="bookmark-card" title="">
             <div class="bookmark-data">
@@ -25,11 +27,18 @@
     </div>
 
 
-    <div id="controlsContainer">
-        <a href="#" id="control-clear-all">CLEAR ALL</a> &middot; <a href="#" id="control-add">ADD</a>
-        <div><input type="checkbox" id="optionsFocusOnOpen"> Focus tab when opening?</div>
+    <div id="footerContainer">
+        <div id="optionsContainer">
+            <label class="footer-checkbox-label">Focus tab when opening
+                <input type="checkbox" id="optionsFocusOnOpen" class="footer-checkbox">
+                <span class="footer-checkbox-replacement"></span>
+            </label>
+        </div>
+        <div id="controlsContainer">
+            <a href="#" class="footer-control" id="control-add">Add</a>
+            <a href="#" class="footer-control" id="control-clear-all">Delete All</a>
+        </div>
     </div>
-
 
     <div id="editformContainer">
         <form id="editform" novalidate>
@@ -52,4 +61,5 @@
 
     <script src="./js/home.js" type="module"></script>
 </body>
+
 </html>

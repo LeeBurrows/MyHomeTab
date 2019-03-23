@@ -1,3 +1,4 @@
+import Bookmark from './bookmark.js';
 /**
  * ======================================================================
  * storage.js
@@ -11,14 +12,14 @@
 
 const chromeStorage = chrome.storage.local; //chrome.storage.sync also works
 const storageKey_bookmarks = 'bookmarks'; // key for bookmarks store
-const storageKey_options = 'options'; // key for user option store
+const storageKey_options = 'options'; // key for user options store
 
 /**
  * Read user options.
  * 
- * Callback signature: callback(user-options:object)
+ * @param {function} callback - Signature: callback(object)
  */
-function getUserOptions(callback) {
+function getOptions(callback) {
     chromeStorage.get(storageKey_options, (data) => {
         callback(data[storageKey_options] || {});
     });
@@ -28,18 +29,18 @@ function getUserOptions(callback) {
  * Write user options.
  * 
  * @param {object} data - User options
- * Callback signature: callback()
+ * @param {function} callback - Signature: callback()
  */
-function setUserOptions(data, callback) {
-    let jsonObj = {};
-    jsonObj[storageKey_options] = data;
-    chromeStorage.set(jsonObj, callback);
+function setOptions(data, callback) {
+    const obj = {};
+    obj[storageKey_options] = data;
+    chromeStorage.set(obj, callback);
 }
 
 /**
  * Read bookmarks.
  * 
- * Callback signature: callback(bookmarks:array)
+ * @param {function} callback - Signature: callback(Bookmark[])
  */
 function getBookmarks(callback) {
     chromeStorage.get(storageKey_bookmarks, (data) => {
@@ -50,20 +51,20 @@ function getBookmarks(callback) {
 /**
  * Write bookmarks.
  * 
- * @param {array} data - bookmarks
- * Callback signature: callback()
+ * @param {Bookmark[]} data - bookmarks
+ * @param {function} callback - Signature: callback()
  */
 function setBookmarks(data, callback) {
-    let jsonObj = {};
-    jsonObj[storageKey_bookmarks] = data;
-    chromeStorage.set(jsonObj, callback);
+    const obj = {};
+    obj[storageKey_bookmarks] = data;
+    chromeStorage.set(obj, callback);
 }
 
 /**
  * Delete bookmark.
  * 
  * @param {string} id - ID of bookmark to delete
- * Callback signature: callback()
+ * @param {function} callback - Signature: callback()
  */
 function deleteBookmark(id, callback) {
     getBookmarks((data) => {
@@ -83,16 +84,12 @@ function deleteBookmark(id, callback) {
  * @param {string} url - bookmark URL
  * @param {string} title - bookmark title
  * @param {string} icon - bookmark icon URL
- * Callback signature: callback()
+ * @param {function} callback - Signature: callback()
  */
-function addBookmark(url, title, icon, callback) {
+function addBookmark(url, title, iconUrl, callback) {
     getBookmarks((data) => {
-        let obj = {};
-        obj['id'] = (new Date()).getTime().toString();
-        obj['url'] = url || '';
-        obj['title'] = title || '';
-        obj['icon'] = icon || '';
-        data.push(obj);
+        const bookmark = new Bookmark((new Date()).getTime().toString(), url, title, iconUrl);
+        data.push(bookmark);
         setBookmarks(data, callback);
     });
 }
@@ -100,8 +97,8 @@ function addBookmark(url, title, icon, callback) {
 /**
  * Update bookmark.
  * 
- * @param {object} bookmark - Bookmark to update
- * Callback signature: callback()
+ * @param {Bookmark} bookmark - Bookmark to update
+ * @param {function} callback - Signature: callback()
  */
 function updateBookmark(bookmark, callback) {
     getBookmarks((data) => {
@@ -118,13 +115,13 @@ function updateBookmark(bookmark, callback) {
 /**
  * Reposition bookmark in stored data list.
  * 
- * @param {int} oldIndex - Index of bookmark to move
- * @param {int} newIndex - Index of new bookmark location
- * Callback signature: callback()
+ * @param {number} oldIndex - Index of bookmark to move
+ * @param {number} newIndex - Index of new bookmark location
+ * @param {function} callback - Signature: callback()
  */
 function reorderBookmark(oldIndex, newIndex, callback) {
     getBookmarks((data) => {
-        let bookmarkToMove = data.splice(oldIndex, 1)[0];
+        const bookmarkToMove = data.splice(oldIndex, 1)[0];
         data.splice(newIndex, 0, bookmarkToMove);
         setBookmarks(data, callback);
     });
@@ -133,7 +130,7 @@ function reorderBookmark(oldIndex, newIndex, callback) {
 /**
  * Deleta all bookmarks.
  * 
- * Callback signature: callback()
+ * @param {function} callback - Signature: callback()
  */
 function removeAllBookmarks(callback) {
     chromeStorage.remove(storageKey_bookmarks, callback);
@@ -142,10 +139,10 @@ function removeAllBookmarks(callback) {
 /**
  * Add callback event for changes to bookmarks.
  * 
- * Event callback signature: callback()
+ * @param {function} callback - Signature: callback()
  * 
  * TODO:
- * Add removeBookmarksChangeEventListener
+ * Implement removeBookmarksChangeEventListener
  */
 function addBookmarksChangeEventListener(callback) {
     chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -157,13 +154,13 @@ function addBookmarksChangeEventListener(callback) {
  * Exports
  */
 export {
-    addBookmarksChangeEventListener as registerBookmarksChangeListener,
+    addBookmarksChangeEventListener,
     getBookmarks,
     deleteBookmark,
     addBookmark,
     updateBookmark,
     reorderBookmark,
     removeAllBookmarks,
-    getUserOptions as getSettings,
-    setUserOptions as setSettings
+    getOptions,
+    setOptions
 };

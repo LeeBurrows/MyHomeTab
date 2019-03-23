@@ -17,12 +17,12 @@
  * Determine if image exists at URL.
  * 
  * @param {string} url - a URL to test
- * Callback signature: callback(url:string = null)
+ * @param {function} callback - Signature: callback(url:string = null)
  * Success: callback(validated url)
  * Failed: callback(null)
  */
 function testImageExistence(url, callback) {
-    let img = new Image();
+    const img = new Image();
     img.onload = () => {
         callback(url);
     };
@@ -37,7 +37,7 @@ function testImageExistence(url, callback) {
  * Checks <domain>/favicon.png and then <domain>/favicon.ico
  * 
  * @param {string} url - a URL for website
- * Callback signature: callback(url:string = null)
+ * @param {function} callback - Signature: callback(url:string = null)
  * Success: callback(favicon url)
  * Failed: callback(null)
  */
@@ -62,5 +62,5 @@ function findFavicon(url, callback) {
  * Exports
  */
 export {
-    findFavicon as findFavicon
+    findFavicon
 }

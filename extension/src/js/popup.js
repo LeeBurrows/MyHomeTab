@@ -26,10 +26,10 @@ buttonElement.onclick = () => {
     messageElement.style.display = 'block';
     buttonElement.style.display = 'none';
     chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-        let url = tabs[0].url;
-        let title = tabs[0].title.substring(0, 100);
-        findFavicon(tabs[0].url, (icon) => {
-            addBookmark(url, title, icon, () => {
+        const url = tabs[0].url;
+        const title = tabs[0].title.substring(0, 100);
+        findFavicon(url, (iconUrl) => {
+            addBookmark(url, title, iconUrl, () => {
                 setTimeout(window.close, 2000);
             });
         });
