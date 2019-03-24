@@ -21,8 +21,6 @@ const editformTitleInput = document.getElementById('editformTitle');
 const editformIconInput = document.getElementById('editformIcon');
 const editformCancelBtn = document.getElementById('editformCancel');
 const editformDeleteBtn = document.getElementById('editformDelete');
-const controlAdd = document.getElementById('control-add');
-const controlClearAll = document.getElementById('control-clear-all');
 const optionsFocusControl = document.getElementById('optionsFocusOnOpen');
 const bookmarkCardTemplate = bookmarksContainer.firstElementChild.cloneNode(true);
 
@@ -237,9 +235,25 @@ function closeEditForm(event) {
 }
 
 /**
- * Prepare edit bookmark form.
+ * Prepare listeners.
  */
-function initEditForm() {
+function initListeners() {
+    //storage
+    storage.addBookmarksChangeEventListener(addBookmarksToDisplay);
+    //search bar
+    document.getElementById('searchInput').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && event.target.value.length > 0) {
+            chrome.tabs.create({ 'url': 'https://google.com/search?q=' + event.target.value });
+        }
+    });
+    //controls
+    document.getElementById('controlAdd').addEventListener('click', (event) => openEditForm());
+    document.getElementById('controlClearAll').addEventListener('click', (event) => {
+        if (confirm("Are you sure you want to delete ALL bookmarks?")) storage.removeAllBookmarks();
+    });
+    //options
+    optionsFocusControl.addEventListener('change', saveOptions);
+    //edit form
     editform.addEventListener('submit', () => {
         if (!editformUrlInput.validity.valid) return;
         const id = editformIdInput.value;
@@ -280,39 +294,12 @@ function saveOptions() {
 }
 
 /**
- * Setup search.
+ * initialise.
  * 
- * If user presses ENTER while search input has focus, and input is not empty,
- * open new tab and navigate to google
+ * 1) Setup listeners
+ * 2) Load/display options settings
+ * 3) Load/display bookmarks
  */
-document.getElementById('searchInput').addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && event.target.value.length > 0) {
-        chrome.tabs.create({ 'url': 'https://google.com/search?q=' + event.target.value });
-    }
-});
-
-/**
- * Setup controls.
- */
-controlAdd.addEventListener('click', (event) => openEditForm());
-controlClearAll.addEventListener('click', (event) => {
-    if (confirm("Are you sure you want to delete ALL bookmarks?")) storage.removeAllBookmarks();
-});
-/**
- * Setup user options.
- */
-optionsFocusControl.addEventListener('change', saveOptions);
+initListeners();
 loadOptions();
-
-/**
- * Final setup.
- * 
- * 1) Listen for storage changes
- * 2) Prep the edit form
- * 3) Show bookmarks
- */
-storage.addBookmarksChangeEventListener(addBookmarksToDisplay);
-initEditForm();
 addBookmarksToDisplay();
-
-

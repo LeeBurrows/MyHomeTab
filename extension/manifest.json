@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "MyHomeTab",
-  "version": "0.1",
-  "description": "My home tab",
+  "description": "My Home Tab",
+  "version": "0.2",
   "permissions": [
     "storage",
     "activeTab"

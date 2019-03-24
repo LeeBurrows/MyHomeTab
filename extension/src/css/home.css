@@ -4,17 +4,21 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
   display: grid;
-  grid-template-rows: auto 12em 4em;
+  grid-template-rows: 1fr 12em auto;
   height: 100vh;
 }
-
+label {
+  color: var(--colour-text);
+  font-size: 1.25em;
+  display: block;
+}
 input[type="text"] {
   color: var(--colour-text);
   background-color: var(--colour-light);
   border: 1px solid var(--colour-secondary);
-  padding: 0.75em 0.25em;
-  margin-bottom: 1em;
-  width: 100%;
+}
+input:invalid {
+  border-color: var(--colour-warning);
 }
 
 /* search */
@@ -43,13 +47,10 @@ input[type="text"] {
   float: left;
 }
 .footer-checkbox-label {
-  display: block;
   padding-left: 2.2em;
   position: relative;
   cursor: pointer;
   user-select: none;
-  font-size: 1.25em;
-  font-weight: normal;
 }
 .footer-checkbox-label:hover {
   color: var(--colour-hilite);  
@@ -87,6 +88,7 @@ input[type="text"] {
 .footer-control:hover {
   background-color: var(--colour-hilite);  
 }
+
 /* bookmarks */
 
 #bookmarksContainer {
@@ -133,16 +135,19 @@ input[type="text"] {
   margin: 0;
   padding: 0;
 }
+.bookmark-card:hover .bookmark-control {
+  opacity: 1;
+}
 .bookmark-control {
   margin-top: 0.25em;
-  background-color: var(--colour-hilite);
+  background-color: var(--colour-light);
   border-radius: 0.5em;
   cursor: pointer;
   opacity: 0;
   transition: opacity 300ms ease-in-out;
 }
 .bookmark-control:hover {
-  opacity: 1;
+  background-color: var(--colour-hilite);
 }
 
 /* form */
@@ -176,19 +181,22 @@ input[type="text"] {
   padding: 0;
   margin: 0 0 1.2em 0;
 }
-.editformSubLabel {
+.editform-sublabel {
   font-size: 0.7em;
   font-weight: normal;
   vertical-align: baseline;
 }
-label {
-  font-size: 1.25em;
+#editformContainer label {
   font-weight: bold;
   padding: 0 0 0.3em 0;
-  display: block;
 }
-input[type="submit"],
-input[type="button"] {
+#editformContainer input[type="text"] {
+  padding: 0.75em 0.25em;
+  margin-bottom: 1em;
+  width: 100%;
+}
+#editformContainer input[type="submit"],
+#editformContainer input[type="button"] {
   font-weight: bold;
   width: 8em;
   margin-left: 2em;
@@ -196,14 +204,11 @@ input[type="button"] {
   cursor: pointer;
   border: 1px solid var(--colour-secondary);
 }
-input[type="submit"]:hover,
-input[type="button"]:hover {
+#editformContainer input[type="submit"]:hover,
+#editformContainer input[type="button"]:hover {
   background-color: var(--colour-primary);
 }
-input:invalid {
-  border-color: var(--colour-warning);
-}
-.editformButtonsRow {
+.editform-buttons-row {
   display: flex;
   justify-content: flex-end;
   align-items: center;

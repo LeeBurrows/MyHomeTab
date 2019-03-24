@@ -11,7 +11,7 @@ body {
 }
 
 /* hide initially */
-#message {
+#activeMessage, #completeMessage {
   display: none;
   user-select: none;
 }
