@@ -18,7 +18,7 @@ const editformHeading = document.getElementById('editformHeading');
 const editformIdInput = document.getElementById('editformId');
 const editformUrlInput = document.getElementById('editformUrl');
 const editformTitleInput = document.getElementById('editformTitle');
-const editformIconInput = document.getElementById('editformIcon');
+const editformIconUrlInput = document.getElementById('editformIconUrl');
 const editformCancelBtn = document.getElementById('editformCancel');
 const editformDeleteBtn = document.getElementById('editformDelete');
 const optionsFocusControl = document.getElementById('optionsFocusOnOpen');
@@ -76,7 +76,7 @@ function removeBookmarksFromDisplay() {
 }
 
 /**
- * Retrieve bookmarks from storage and add cards to DOM.
+ * Retrieve bookmarks data from storage and add cards to DOM.
  * 
  * Removes any existing cards from DOM first
  */
@@ -91,6 +91,8 @@ function addBookmarksToDisplay() {
 
 /**
  * Initiate card re-positioning
+ * Expects cards to be elements in a grid layout.
+ * Expects cards/rows/columns to be consistently sized.
  * 
  * @param {htmlelement} element - Root node of the card to move
  */
@@ -101,10 +103,10 @@ function startReordering(element) {
 
     let templateColumns = computedStyle.gridTemplateColumns.split(' ');
     let templateRows = computedStyle.gridTemplateRows.split(' ');
-    let cardWidth = parseInt(templateColumns[0]);
-    let cardHeight = parseInt(templateRows[0]);
-    let gapX = parseInt(computedStyle.gridColumnGap);
-    let gapY = parseInt(computedStyle.gridRowGap);
+    let gridColumnSize = parseInt(templateColumns[0]);
+    let gridRowSize = parseInt(templateRows[0]);
+    let gridColumnGap = parseInt(computedStyle.gridColumnGap);
+    let gridRowGap = parseInt(computedStyle.gridRowGap);
 
     isReordering = true;
     reorderingBookmarkIndex = reorderingBookmarkStartIndex  = calcBookmarkIndex(element);
@@ -114,8 +116,8 @@ function startReordering(element) {
     reorderingRowCount = Math.ceil(reorderingCellCount / reorderingColumnCount);
     reorderingOriginX = firstBookmarkDomRect.left;
     reorderingOriginY = firstBookmarkDomRect.top;
-    reorderingCellWidth = cardWidth + gapX;
-    reorderingCellHeight = cardHeight + gapY;
+    reorderingCellWidth = gridColumnSize + gridColumnGap;
+    reorderingCellHeight = gridRowSize + gridRowGap;
 
     reorderingElement.children[0].className = 'bookmark-data-reordering';
 
@@ -207,14 +209,14 @@ function openEditForm(bookmark) {
         editformIdInput.value = bookmark.id;
         editformUrlInput.value = bookmark.url;
         editformTitleInput.value = bookmark.title;
-        editformIconInput.value = bookmark.iconUrl;
+        editformIconUrlInput.value = bookmark.iconUrl;
         editformTitleInput.focus();
     } else {
         editformHeading.innerHTML = "Add Bookmark";
         editformIdInput.value = '';
         editformUrlInput.value = '';
         editformTitleInput.value = '';
-        editformIconInput.value = '';
+        editformIconUrlInput.value = '';
         editformUrlInput.focus();
     }
     editformDeleteBtn.style.display = (bookmark) ? 'block' : 'none';
@@ -259,7 +261,7 @@ function initListeners() {
         const id = editformIdInput.value;
         const url = editformUrlInput.value;
         const title = editformTitleInput.value;
-        const iconUrl = editformIconInput.value;
+        const iconUrl = editformIconUrlInput.value;
         if (editformIdInput.value) {
             const bookmark = new Bookmark(id, url, title, iconUrl);
             storage.updateBookmark(bookmark, closeEditForm);
