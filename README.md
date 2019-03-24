@@ -13,17 +13,37 @@ v0.2 BETA
 * Type in searchbar and hit ENTER to open new tab with google search results.
 
 
-## Technical Summary
+## Installation
+1. Open the Extension Management page by navigating to [**chrome://extensions**](chrome://extensions) (the Extension Management page can also be opened by clicking on the Chrome menu, hovering over More Tools then selecting Extensions).
+2. Enable Developer Mode by clicking the toggle switch next to Developer mode.
+3. Click the LOAD UNPACKED button and select the "extension" directory of this project (ie: the directory containing the manifest.json file).
+
+
+## Technical Notes
 * No dependancies.
 * No compiling/transpiling required.
-* Card data stored in Chrome Storage.
-* Card data: 
+* Bookmark data stored in Chrome Storage (Local, but Sync will work too).
+* Bookmark data: 
+  * UID,
   * Page URL,
   * Page Title,
-  * URL for an image.
+  * Image URL.
+* When new bookmark created with toolbar button, app looks for favicon file at root of site (png and then ico) to populate image URL.
+* Reordering of cards depends on css grid layout.
 
 
-## Installation
-1. Open the Extension Management page by navigating to [**chrome://extensions**](chrome://extensions) (the Extension Management page can also be opened by clicking on the Chrome menu, hovering over More Tools then selecting Extensions).  
-2. Enable Developer Mode by clicking the toggle switch next to Developer mode.  
-3. Click the LOAD UNPACKED button and select the "extension" directory of this project (ie: the directory with the manifest.json file).  
+## Todos
+* Better documentation for JS, CSS, Readme.
+* Save image data in storage, rather than requesting from remote resource each time (although browser cache does mitigate this issue).
+* Grouping of bookmarks.
+* Import / export.
+* For "delete all" confirmation, replace native browser confirm dialog with custom markup/script.
+* Edit form:
+  * Validate URL.
+  * Option to auto-grab URL Title.
+  * Option to auto-grab (or refresh, when image data saved to storage has been implemented) image URL.
+* User options:
+  * Card size.
+  * Background colours / picture.
+  * Show/hide search.
+  * Select alternative search engines.
