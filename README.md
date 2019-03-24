@@ -10,8 +10,8 @@ Card data:
   * Title,
   * URL to an image.
 
-Add new card with toolbar button while on any page.
-  * Card data filled with page URL, page Title and site favicon (if found).  
+Add new card with toolbar button while on any page.  
+Card data filled with page URL, page Title and site favicon (if found).  
 Click card to open new tab (option to jump to new tab when opening, control in footer).  
 Add new card manually with "Add" button in footer.  
 Delete all cards with "Delete All" button in footer.  
