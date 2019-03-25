@@ -3,6 +3,9 @@ Chrome Extension with speed dial functionality.
 
 v0.2 BETA
 
+## License
+[This project is licensed under the terms of the MIT license.](./license.md)
+
 ## Instructions
 * Add new card with toolbar button (![Image](./extension/icons/icon16.png "toolbar icon")) while on any page.
 * Click card to open new tab (option to jump to new tab when opening, control in footer).
