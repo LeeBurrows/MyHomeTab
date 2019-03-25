@@ -4,7 +4,7 @@ Chrome Extension with speed dial functionality.
 v0.2 BETA
 
 ## License
-[This project is licensed under the terms of the MIT license.](./license.md)
+[This project is licensed under the terms of the MIT license.](./LICENSE.md)
 
 ## Instructions
 * Add new card with toolbar button (![Image](./extension/icons/icon16.png "toolbar icon")) while on any page.
