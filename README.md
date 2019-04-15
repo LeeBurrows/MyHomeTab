@@ -11,7 +11,7 @@ v0.2 BETA
 * Click card to open new tab (option to jump to new tab when opening, control in footer).
 * Add new card manually with "Add" button in footer.
 * Delete all cards with "Delete All" button in footer.
-* Reorder cards by ctrl-clicking card, then use mouse to move card to a new position.
+* Re-order cards by ctrl-clicking card, then use mouse to move card to a new position.
 * To edit or delete a card, hover over card to reveal EDIT button; click to open form for editing, or to delete.
 * Type in searchbar and hit ENTER to open new tab with google search results.
 
@@ -32,7 +32,7 @@ v0.2 BETA
   * Page Title,
   * Image URL.
 * When new bookmark created with toolbar button, app looks for favicon file at root of site (png and then ico) to populate image URL.
-* Reordering of cards depends on css grid layout.
+* Re-ordering of cards depends on css grid layout.
 
 
 ## Todos

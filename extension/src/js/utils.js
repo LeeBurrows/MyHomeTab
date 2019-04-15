@@ -5,8 +5,11 @@
  * Helper functions.
  * 
  * TODO:
- * testImageExistence() - use Promises; will enable findFavicon to test
+ * 1) testImageExistence() - use Promises; will enable findFavicon to test
  * more variations of favicon URL without indentation insanity
+ * 
+ * 2) https://www.google.com/s2/favicons?domain=leeburrows.com
+ * Use this endpoint to retrieve favicon?
  * ======================================================================
  */
 
